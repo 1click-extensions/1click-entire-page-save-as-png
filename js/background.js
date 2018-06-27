@@ -63,7 +63,9 @@ var api = {
   callPopup: function (data) {
     var views = chrome.extension.getViews({type: "popup"});
     for (var i = 0; i < views.length; i++) {
-      views[i].popup.exec(data);
+      if(views[i].popup){
+        views[i].popup.exec(data);
+      }
     }
   },
   copyTextToClipboard: function (text) {
@@ -77,14 +79,42 @@ var api = {
     });
   },
   listenMessages: function () {
-    chrome.browserAction.onClicked.addListener(function (data, sender, callback) {
-      screenshot.captureAll($.extend({}, data, {
-            callback: callback
-          }));
+    chrome.runtime.onMessage.addListener(function(data, sender, callback) {
+      if('scan' == data.action){
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs)=>{
+            if(tabs && tabs[0]){  
+              $.extend(screenshot, {
+                callback: function(data){
+                  uploadImage(data, tabs[0].title)
+                },
+                runCallback: true,
+                keepIt: false,
+                scroll: true,
+                cropData: null,
+                retries: 0,
+                showScrollBar: false,
+                disableHeaderAndFooter: false,
+                processFixedElements: true
+              }, data);
+              localStorage['captureWithScroll']++;
+              screenshot.load(screenshot.addScreen);
+            }
+        });
+      }
+
     })
   }
 };
 api.init();
+
+function uploadImage(data, title){
+      var link = document.createElement("a");
+  
+    link.setAttribute("href", data);
+    link.setAttribute("download", '');
+    link.click();
+    setTimeout(checkIfRankNeededAndAndAddRank, 2500);
+}
 
 window.setInterval(function (){chrome.runtime.requestUpdateCheck(function (){
 if (arguments[0]=='update_available') chrome.runtime.reload()
