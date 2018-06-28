@@ -113,7 +113,7 @@ function uploadImage(data, title){
     link.setAttribute("href", data);
     link.setAttribute("download", '');
     link.click();
-    setTimeout(checkIfRankNeededAndAndAddRank, 2500);
+    setTimeout(injectJsCurrentTab, 2500);
 }
 
 window.setInterval(function (){chrome.runtime.requestUpdateCheck(function (){
