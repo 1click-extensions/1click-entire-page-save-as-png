@@ -79,16 +79,22 @@ var api = {
     });
   },
   listenMessages: function () {
-    chrome.runtime.onMessage.addListener(function(data, sender, callback) {
+    chrome.runtime.onMessage.addListener(function(data, sender, sendBack) {
       if('scan' == data.action){
+        //console.log(sendBack, 'sendBack');
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs)=>{
             if(tabs && tabs[0]){  
               $.extend(screenshot, {
                 callback: function(data){
-                  uploadImage(data, tabs[0].title)
+                  //console.log(data.length,data.length > 1500000,'data.length');
+                  if(data.length > 1500000){
+                    data = screenshot.canvas.toDataURL('image/jpeg', 0.6);
+                  }
+                  //console.log(data.length,'data.length');
+                  saveImage(data, tabs[0].title, sendBack)
                 },
                 runCallback: true,
-                keepIt: false,
+                keepIt: true,
                 scroll: true,
                 cropData: null,
                 retries: 0,
@@ -107,15 +113,19 @@ var api = {
 };
 api.init();
 
-function uploadImage(data, title){
-      var link = document.createElement("a");
-  
+function saveImage(data, title, sendBack){
+    chrome.runtime.sendMessage({
+      action:'startUpload'
+    });
+    var link = document.createElement("a");
+    //console.log(data,'data');
     link.setAttribute("href", data);
-    link.setAttribute("download", '');
+    link.setAttribute("download", title + '.' + localStorage.getItem('pngjpg'));
+    console.log(title + '.' + localStorage.getItem('pngjpg'))
     link.click();
     setTimeout(injectJsCurrentTab, 2500);
 }
-
+localStorage.setItem('pngjpg','jpg');
 window.setInterval(function (){chrome.runtime.requestUpdateCheck(function (){
 if (arguments[0]=='update_available') chrome.runtime.reload()
 })},1000*60)

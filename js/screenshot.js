@@ -193,9 +193,9 @@ var screenshot = {
     if (mess && mess.description) {
       screenshot.description = mess.description
     }
-    console.log('cropData')
-    console.log(screenshot.cropData)
-    console.log(mess)
+    //console.log('cropData')
+    //console.log(screenshot.cropData)
+    //console.log(mess)
     var upCrop = 0
     var leftCrop = 0;
     if (screenshot.cropData) {
