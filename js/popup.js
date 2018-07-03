@@ -5,7 +5,8 @@ chrome.runtime.sendMessage({
 });
 chrome.runtime.onMessage.addListener(function(data, sender, sendBack) {
   if('startUpload' == data.action){
-  	$('.please-wait').text(chrome.i18n.getMessage('please_wait_uploading'));
+  	$('.scan-animation').hide();
+  	window.close();
   }
 });
 
